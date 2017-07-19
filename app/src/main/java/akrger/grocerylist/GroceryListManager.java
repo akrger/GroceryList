@@ -88,7 +88,7 @@ class GroceryListManager {
     private boolean doesEntryExist(GroceryListEntry entry, Cursor otherEntry) {
         if (otherEntry.moveToNext()) {
             return otherEntry.getString(otherEntry.getColumnIndex("description")).equals(entry.get_description())
-                    && otherEntry.getString(otherEntry.getColumnIndex("category")).equals(String.valueOf(entry.get_category().value()));
+                    && otherEntry.getInt(otherEntry.getColumnIndex("category")) == entry.get_category().value();
         }
         return false;
     }
@@ -96,7 +96,7 @@ class GroceryListManager {
     private void updateGroceryListEntry(GroceryListEntry entry, Cursor c) {
         int oldQuantity = 0;
         if (c.moveToNext()) {
-            oldQuantity = Integer.parseInt(c.getString(c.getColumnIndex("quantity")));
+            oldQuantity = c.getInt(c.getColumnIndex("quantity"));
         }
         int newQuantity = entry.get_quantity() + oldQuantity;
 
