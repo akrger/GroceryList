@@ -1,6 +1,8 @@
 package akrger.grocerylist;
 
-class GroceryList {
+import java.io.Serializable;
+
+class GroceryList implements Serializable {
     private long _id;
 
     long get_id() {
@@ -28,7 +30,6 @@ class GroceryList {
 
     @Override
     public String toString() {
-
         return _title;
     }
 }

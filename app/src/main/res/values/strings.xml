@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">GroceryList</string>
+    <string name="title_activity_grocery_list_entry">GroceryListEntryActivity</string>
 </resources>

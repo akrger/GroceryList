@@ -10,6 +10,7 @@ import java.util.Set;
 
 class GroceryListManager {
     private SQLiteDatabase _db;
+
     private HashMap<GroceryList, GroceryArrayList<GroceryListEntry>> _lists;
 
     GroceryListManager(SQLiteDatabase db) {
