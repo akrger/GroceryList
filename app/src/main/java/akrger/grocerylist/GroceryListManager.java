@@ -3,6 +3,7 @@ package akrger.grocerylist;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -61,14 +62,19 @@ class GroceryListManager {
         GroceryListEntry newEntry = new GroceryListEntry(0, description, category, quantity, 0);
         String[] projection = {
                 GroceryListContract.GroceryListEntry.COLUMN_NAME_DESCRIPTION,
-                GroceryListContract.GroceryListEntry.COLUMN_NAME_CATEGORY};
+                GroceryListContract.GroceryListEntry.COLUMN_NAME_CATEGORY,
+                GroceryListContract.GroceryListEntry.COLUMN_NAME_QUANTITY,
+        };
         String selection = GroceryListContract.GroceryListEntry.COLUMN_NAME_DESCRIPTION + " = ?" + " and "
-                + GroceryListContract.GroceryListEntry.COLUMN_NAME_CATEGORY + " = ?";
-        String[] selectionArgs = {newEntry.get_description(), String.valueOf(newEntry.get_category().value())};
+                + GroceryListContract.GroceryListEntry.COLUMN_NAME_CATEGORY + " = ?" + " and "
+                + GroceryListContract.GroceryListEntry.COLUMN_NAME_GROCERY_LIST_ENTRY_ID + " = ?";
+        String[] selectionArgs = {newEntry.get_description(), String.valueOf(newEntry.get_category().value()),
+        String.valueOf(list.get_id())};
         Cursor c = _db.query(GroceryListContract.GroceryListEntry.TABLE_NAME, projection, selection, selectionArgs, null, null, null);
 
-        if (doesEntryExist(newEntry, c)) {
+        if (doesEntryExist(newEntry, c, list)) {
             updateGroceryListEntry(newEntry, c);
+            return null;
         }
 
         long groceryListEntryId = list.get_id();
@@ -86,16 +92,19 @@ class GroceryListManager {
         return entry;
     }
 
-    private boolean doesEntryExist(GroceryListEntry entry, Cursor otherEntry) {
+    private boolean doesEntryExist(GroceryListEntry entry, Cursor otherEntry, GroceryList list) {
+
         if (otherEntry.moveToNext()) {
             return otherEntry.getString(otherEntry.getColumnIndex("description")).equals(entry.get_description())
-                    && otherEntry.getInt(otherEntry.getColumnIndex("category")) == entry.get_category().value();
+                    && otherEntry.getInt(otherEntry.getColumnIndex("category")) == entry.get_category().value()
+                    || otherEntry.getLong(otherEntry.getColumnIndex("grocery_list_entry_id")) == entry.get_id();
         }
         return false;
     }
 
     private void updateGroceryListEntry(GroceryListEntry entry, Cursor c) {
         int oldQuantity = 0;
+
         if (c.moveToNext()) {
             oldQuantity = c.getInt(c.getColumnIndex("quantity"));
         }
@@ -109,7 +118,17 @@ class GroceryListManager {
         return _lists.get(list);
     }
 
+    ArrayList<GroceryListEntry> getAllEntries() {
+        ArrayList<GroceryListEntry> arr = new ArrayList<>();
+        for (GroceryList list : _lists.keySet()) {
+            arr.addAll(_lists.get(list));
+        }
+        return arr;
+    }
+
     Set<GroceryList> getAllGroceryLists() {
         return _lists.keySet();
     }
+
+
 }

@@ -1,16 +1,11 @@
 package akrger.grocerylist;
 
-import android.content.DialogInterface;
 import android.database.sqlite.SQLiteDatabase;
-import android.nfc.Tag;
 import android.os.Bundle;
-import android.support.v7.app.AlertDialog;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
-import android.view.View;
 import android.widget.ArrayAdapter;
-import android.widget.EditText;
-import android.widget.ListView;
 
 import java.util.ArrayList;
 
@@ -19,7 +14,10 @@ public class MainActivity extends AppCompatActivity {
     private GroceryListDBHelper dbHelper;
     GroceryListManager manager;
     ArrayList<GroceryList> groceryLists;
-    ArrayAdapter arrayAdapter;
+    ArrayList<GroceryListEntry> groceryListsEntries;
+    ArrayAdapter groceryListArrayAdapter;
+    ArrayAdapter groceryListEntryArrayAdapter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -27,37 +25,21 @@ public class MainActivity extends AppCompatActivity {
         dbHelper = new GroceryListDBHelper(getApplicationContext());
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         manager = new GroceryListManager(db);
-        final ListView view = (ListView) findViewById(R.id.listView);
 
+        //deleteDatabase("GroceryList.db");
+
+
+        final FragmentManager fragmentManager = MainActivity.this.getSupportFragmentManager();
+        final FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         groceryLists = new ArrayList<>(manager.getAllGroceryLists());
-        final AlertDialog.Builder b = new AlertDialog.Builder(this);
-        final EditText input = new EditText(this);
-        b.setView(input);
+        groceryListsEntries = new ArrayList<>(manager.getAllEntries());
 
-       arrayAdapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, groceryLists);
-        view.setAdapter(arrayAdapter);
-        final GroceryListDialogFragment frag = new GroceryListDialogFragment();
+        GroceryListFragment listFragment = new GroceryListFragment();
+        fragmentTransaction.add(R.id.fragment_container, listFragment);
+        fragmentTransaction.commit();
 
-
-
-        findViewById(R.id.button).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //Intent myIntent = new Intent(getApplicationContext(), GroceryListEntryActivity.class);
-                //myIntent.putExtra("ArrayList", t);
-                //startActivity(myIntent);
-                frag.show(getSupportFragmentManager(), "Neue Liste");
-            }
-        });
-        findViewById(R.id.deleteBtn).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                groceryLists.removeAll(groceryLists);
-                deleteDatabase("GroceryList.db");
-                dbHelper.getWritableDatabase();
-                arrayAdapter.notifyDataSetChanged();
-            }
-        });
+        groceryListArrayAdapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, groceryLists);
+        groceryListEntryArrayAdapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, groceryListsEntries);
 
     }
 
@@ -69,6 +51,23 @@ public class MainActivity extends AppCompatActivity {
 
     public void createNewGroceryList(String title) {
         groceryLists.add(manager.createGroceryList(title));
-        arrayAdapter.notifyDataSetChanged();
+       // groceryListArrayAdapter.notifyDataSetChanged();
+    }
+
+    public void createNewGroceryListEntry(String title, GroceryListEntry.Category category, int quantity, GroceryList list) {
+        groceryListsEntries.add(manager.createGroceryListEntry(title, category, quantity, list));
+    //groceryListEntryArrayAdapter.notifyDataSetChanged();
+    }
+
+    public ArrayAdapter getGroceryListArrayAdapter() {
+        return groceryListArrayAdapter;
+    }
+
+    public GroceryListManager getManager() {
+        return manager;
+    }
+
+    public ArrayList<GroceryList> getGroceryLists() {
+        return groceryLists;
     }
 }

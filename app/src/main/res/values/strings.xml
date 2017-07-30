@@ -1,4 +1,8 @@
 <resources>
     <string name="app_name">GroceryList</string>
     <string name="title_activity_grocery_list_entry">GroceryListEntryActivity</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Abbrechen</string>
+    <string name="new_entry">Neuer Eintrag</string>
+    <string name="new_list">Neue Liste</string>
 </resources>
