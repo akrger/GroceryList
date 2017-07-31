@@ -1,6 +1,8 @@
 package akrger.grocerylist;
 
 
+import android.content.Context;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -65,7 +67,8 @@ class GroceryListEntry {
     @Override
     public boolean equals(Object o) {
         return this._description == ((GroceryListEntry) o)._description
-                && this._category == ((GroceryListEntry) o)._category;
+                || this._id == ((GroceryListEntry)o).get_id();
+               // || this._category == ((GroceryListEntry) o)._category;
     }
 
     enum Category {
@@ -93,6 +96,15 @@ class GroceryListEntry {
         public static Category findByKey(int i) {
             return map.get(i);
         }
+
+        public String getCategoryName(Category category, Context context) {
+            switch (category) {
+                case DRINKS:
+                    return context.getString(R.string.drinks);
+                default:
+                    return "";
+            }
+        }
     }
 
     @Override
@@ -104,4 +116,5 @@ class GroceryListEntry {
     public String toString() {
         return _description;
     }
+
 }

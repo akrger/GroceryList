@@ -1,11 +1,17 @@
 package akrger.grocerylist;
 
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
+import android.widget.ListView;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 
@@ -25,7 +31,6 @@ public class MainActivity extends AppCompatActivity {
         dbHelper = new GroceryListDBHelper(getApplicationContext());
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         manager = new GroceryListManager(db);
-
         //deleteDatabase("GroceryList.db");
 
 
@@ -39,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
         fragmentTransaction.commit();
 
         groceryListArrayAdapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, groceryLists);
-        groceryListEntryArrayAdapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, groceryListsEntries);
+        groceryListEntryArrayAdapter = new GroceryListEntryAdapter(this, groceryListsEntries);
 
     }
 
@@ -50,13 +55,23 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void createNewGroceryList(String title) {
-        groceryLists.add(manager.createGroceryList(title));
-       // groceryListArrayAdapter.notifyDataSetChanged();
+        GroceryList list = manager.createGroceryList(title);
+
+        groceryLists.add(list);
     }
 
     public void createNewGroceryListEntry(String title, GroceryListEntry.Category category, int quantity, GroceryList list) {
-        groceryListsEntries.add(manager.createGroceryListEntry(title, category, quantity, list));
-    //groceryListEntryArrayAdapter.notifyDataSetChanged();
+
+
+        GroceryListEntry newEntry=  manager.getEntryFromList(list, title, category);
+        GroceryListEntry entry = manager.createGroceryListEntry(title, category, quantity, list);
+
+        if (newEntry != null) {
+            newEntry.set_quantity(newEntry.get_quantity() + quantity);
+        }
+        //groceryListEntryArrayAdapter.notifyDataSetChanged();
+
+        groceryListsEntries.add(entry);
     }
 
     public ArrayAdapter getGroceryListArrayAdapter() {
@@ -70,4 +85,6 @@ public class MainActivity extends AppCompatActivity {
     public ArrayList<GroceryList> getGroceryLists() {
         return groceryLists;
     }
+
+
 }

@@ -3,7 +3,9 @@ package akrger.grocerylist;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.widget.ListView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,7 +20,7 @@ class GroceryListManager {
         _db = db;
         _lists = new HashMap<>();
 
-        // read database int memory
+        // read database into memory
         String[] projection = {
                 GroceryListContract.GroceryList._ID,
                 GroceryListContract.GroceryList.COLUMN_NAME_TITLE};
@@ -73,8 +75,33 @@ class GroceryListManager {
         Cursor c = _db.query(GroceryListContract.GroceryListEntry.TABLE_NAME, projection, selection, selectionArgs, null, null, null);
 
         if (doesEntryExist(newEntry, c, list)) {
-            updateGroceryListEntry(newEntry, c);
-            return null;
+           // Log.d("Existiert", "loll");
+
+            // austauschen von listview zu recyclerview
+            // um listview item updaten zu könnnen
+            // dann kann das adden zur groceryarrayyylist wegfallen
+            updateGroceryListEntry(newEntry, c, list);
+            //if (!_lists.get(list).contains(newEntry)) {
+                Log.d("aaaaaaaaaaaaaaaaaaaa", "bbbbbbbbbbbbbbbbb");
+            //}
+           //else {
+
+
+
+
+
+           //  _lists.get(list).add(newEntry);
+
+
+
+
+
+
+
+
+            //}
+            return newEntry;
+            //return null;
         }
 
         long groceryListEntryId = list.get_id();
@@ -102,16 +129,30 @@ class GroceryListManager {
         return false;
     }
 
-    private void updateGroceryListEntry(GroceryListEntry entry, Cursor c) {
-        int oldQuantity = 0;
-
-        if (c.moveToNext()) {
-            oldQuantity = c.getInt(c.getColumnIndex("quantity"));
+    public GroceryListEntry getEntryFromList(GroceryList list, String description, GroceryListEntry.Category category) {
+        for (GroceryListEntry entry : _lists.get(list)) {
+            if (entry.get_description().equals(description) && entry.get_category() == category) {
+                Log.d("gitbs doch schon", "lolo");
+                return entry;
+            }
         }
+        Log.d("gitbs doch0", "nicht");
+        return null;
+    }
+
+    private void updateGroceryListEntry(GroceryListEntry entry, Cursor c, GroceryList list) {
+        int oldQuantity = c.getInt(c.getColumnIndex("quantity"));
         int newQuantity = entry.get_quantity() + oldQuantity;
 
         ContentValues values = new ContentValues();
         values.put(GroceryListContract.GroceryListEntry.COLUMN_NAME_QUANTITY, newQuantity);
+
+        String selection = GroceryListContract.GroceryListEntry.COLUMN_NAME_GROCERY_LIST_ENTRY_ID + " = ?"
+                + " and " + GroceryListContract.GroceryListEntry.COLUMN_NAME_DESCRIPTION + " = ?"
+                + " and " + GroceryListContract.GroceryListEntry.COLUMN_NAME_CATEGORY + " = ?";
+        String[] selectionArgs = {String.valueOf(list.get_id()), entry.get_description(), String.valueOf(entry.get_category().value())};
+
+        _db.update(GroceryListContract.GroceryListEntry.TABLE_NAME, values, selection, selectionArgs);
     }
 
     ArrayList<GroceryListEntry> getAllEntriesFromGroceryList(GroceryList list) {
@@ -129,6 +170,4 @@ class GroceryListManager {
     Set<GroceryList> getAllGroceryLists() {
         return _lists.keySet();
     }
-
-
 }
