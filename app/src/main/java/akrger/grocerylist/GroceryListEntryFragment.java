@@ -3,6 +3,8 @@ package akrger.grocerylist;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -32,9 +34,17 @@ public class GroceryListEntryFragment extends Fragment {
         arrayAdapter = new GroceryListEntryAdapter(getContext(), groceryListsEntries);
         final ListView listView = view.findViewById(R.id.entryListView);
         listView.setAdapter(arrayAdapter);
+        final FragmentManager fragmentManager =  getFragmentManager();
+        final FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
+        final GroceryListNewEntryFragment newEntryFragment = new GroceryListNewEntryFragment();
+
         view.findViewById(R.id.newEntry).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View _view) {
+                fragmentTransaction.replace(R.id.fragment_container, newEntryFragment).addToBackStack("showEntry");
+
+                fragmentTransaction.commit();
                 ((MainActivity)getActivity()).createNewGroceryListEntry("üü", GroceryListEntry.Category.DRINKS, 20, list);
                 arrayAdapter.notifyDataSetChanged();
             }
